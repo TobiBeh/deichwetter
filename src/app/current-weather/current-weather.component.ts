@@ -17,7 +17,7 @@ export class CurrentWeatherComponent {
   suggestions: any[] = [];
   selectedLocation: string = '';
   weatherData: any = null;
-  highlightedIndex: number = -1; // Index für die Vorschlagsnavigation
+  highlightedIndex: number = -1; // Für die Navigation der Vorschläge
 
   constructor(
     private nominatimService: NominatimService,
@@ -35,13 +35,14 @@ export class CurrentWeatherComponent {
       )
       .subscribe((results) => {
         this.suggestions = results;
-        this.highlightedIndex = -1; // Reset des Navigationsindex
+        this.highlightedIndex = -1; // Reset des Index
       });
   }
 
   onSelectSuggestion(suggestion: any): void {
-    const fullDisplayName = suggestion.display_name;
-    this.selectedLocation = fullDisplayName.split(',')[0].trim();
+    this.selectedLocation = this.nominatimService.getShortLocationName(
+      suggestion.display_name
+    );
     this.suggestions = [];
     this.weatherService
       .getCurrentWeather(suggestion.lat, suggestion.lon)
@@ -52,62 +53,48 @@ export class CurrentWeatherComponent {
   }
 
   onKeyDown(event: KeyboardEvent): void {
-    if (this.suggestions.length === 0) return;
-
+    // Überprüfen, ob es Vorschläge gibt
+    if (!this.suggestions || this.suggestions.length === 0) return;
+  
+    // Verarbeite das gedrückte Schlüssel-Event
     switch (event.key) {
       case 'ArrowDown':
+        // Nächster Vorschlag
         this.highlightedIndex =
           (this.highlightedIndex + 1) % this.suggestions.length;
+        event.preventDefault(); // Verhindert das Scrollen
         break;
+  
       case 'ArrowUp':
+        // Vorheriger Vorschlag
         this.highlightedIndex =
           (this.highlightedIndex - 1 + this.suggestions.length) %
           this.suggestions.length;
+        event.preventDefault(); // Verhindert das Scrollen
         break;
+  
       case 'Enter':
+        // Vorschlag auswählen
         if (this.highlightedIndex >= 0) {
           this.onSelectSuggestion(this.suggestions[this.highlightedIndex]);
         }
         break;
+  
       default:
         break;
     }
   }
+  
 
-  // Gibt die passende Icon-Klasse für den Wettercode zurück
   getWeatherIcon(weatherCode: number): string {
-    const weatherIcons: { [key: number]: string } = {
-      0: 'wi wi-day-sunny', // Klarer Himmel
-      1: 'wi wi-day-cloudy', // Leicht bewölkt
-      2: 'wi wi-cloudy', // Bewölkt
-      3: 'wi wi-rain', // Regen
-      4: 'wi wi-snow', // Schnee
-    };
-    return weatherIcons[weatherCode] || 'wi wi-na'; // Fallback für unbekannte Codes
+    return this.weatherService.getWeatherIcon(weatherCode);
   }
 
-  // Gibt eine Beschreibung des Wetters basierend auf dem Wettercode zurück
   getWeatherDescription(weatherCode: number): string {
-    const weatherDescriptions: { [key: number]: string } = {
-      0: 'Clear Sky',
-      1: 'Partly Cloudy',
-      2: 'Cloudy',
-      3: 'Rain',
-      4: 'Snow',
-    };
-    return weatherDescriptions[weatherCode] || 'Unknown Condition';
+    return this.weatherService.getWeatherDescription(weatherCode);
   }
 
-  // Gibt die Windrichtung als Text zurück
   getWindDirection(degree: number): string {
-    if (degree >= 337.5 || degree < 22.5) return 'N';
-    if (degree >= 22.5 && degree < 67.5) return 'NE';
-    if (degree >= 67.5 && degree < 112.5) return 'E';
-    if (degree >= 112.5 && degree < 157.5) return 'SE';
-    if (degree >= 157.5 && degree < 202.5) return 'S';
-    if (degree >= 202.5 && degree < 247.5) return 'SW';
-    if (degree >= 247.5 && degree < 292.5) return 'W';
-    if (degree >= 292.5 && degree < 337.5) return 'NW';
-    return '';
+    return this.weatherService.getWindDirection(degree);
   }
 }
