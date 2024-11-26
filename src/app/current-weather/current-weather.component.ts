@@ -50,6 +50,7 @@ export class CurrentWeatherComponent {
         this.weatherData = weather.current_weather;
         this.searchControl.setValue('', { emitEvent: false }); // Suchzeile leeren
       });
+      this.weatherService.setLocation(suggestion.lat, suggestion.lon);
   }
 
   onKeyDown(event: KeyboardEvent): void {
