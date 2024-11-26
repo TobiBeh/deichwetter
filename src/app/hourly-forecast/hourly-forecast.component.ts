@@ -34,17 +34,17 @@ export class HourlyForecastComponent implements OnInit, OnDestroy {
     this.weatherService.getHourlyWeather(lat, lon).subscribe((data: any) => {
       this.allTimes = data.hourly.time.map((time: string) => new Date(time).getTime());
       this.temperatures = data.hourly.temperature_2m;
-  
+
       const now = this.allTimes[0]; // Beginne bei den frühesten Daten
       this.xMin = now;
       this.xMax = now + this.visibleRange;
-  
+
       // Annotationen für jeden zweiten Tag erstellen
       const annotations = [];
       for (let i = 0; i < this.allTimes.length; i++) {
         const dayStart = new Date(this.allTimes[i]).setHours(0, 0, 0, 0); // Tagesanfang
         const dayEnd = dayStart + 24 * 60 * 60 * 1000; // Tagesende
-  
+
         // Nur jeden zweiten Tag markieren
         if ((i / 24) % 2 === 1) {
           annotations.push({
@@ -54,17 +54,13 @@ export class HourlyForecastComponent implements OnInit, OnDestroy {
           });
         }
       }
-  
+
       const options = {
         chart: {
           type: 'line',
           height: 350,
           animations: {
-            enabled: true,
-            easing: 'linear',
-            dynamicAnimation: {
-              speed: 300,
-            },
+            enabled: false, // Deaktiviert für direktes Feedback
           },
           zoom: {
             enabled: false, // Zoom deaktivieren
@@ -110,12 +106,12 @@ export class HourlyForecastComponent implements OnInit, OnDestroy {
           xaxis: annotations, // Annotationen für jeden zweiten Tag
         },
       };
-  
+
       // Existierenden Chart löschen und neuen erstellen
       if (this.chart) {
         this.chart.destroy();
       }
-  
+
       const chartElement = document.querySelector('#chart');
       if (chartElement) {
         this.chart = new ApexCharts(chartElement, options);
@@ -123,19 +119,26 @@ export class HourlyForecastComponent implements OnInit, OnDestroy {
       }
     });
   }
-  
 
   @HostListener('wheel', ['$event'])
   onScroll(event: WheelEvent): void {
     if (!this.isMouseOverChart) return; // Nur handeln, wenn Maus über Diagramm
 
     event.preventDefault(); // Standard-Scrolling deaktivieren
-    const delta = event.deltaY < 0 ? -this.scrollFactor : this.scrollFactor;
 
+    // Dynamische Anpassung des Deltas für flüssigeres Scrollen
+    const baseDelta = this.scrollFactor;
+    const deltaMultiplier = event.deltaY > 100 ? 1.5 : event.deltaY < 10 ? 0.5 : 1; // Einfache Multiplikation basierend auf Geschwindigkeit
+    const delta = (event.deltaY < 0 ? -baseDelta : baseDelta) * deltaMultiplier;
+
+    this.updateChartRange(delta);
+  }
+
+  updateChartRange(delta: number): void {
     this.xMin += delta;
     this.xMax += delta;
 
-    // Grenzen für die X-Achse prüfen
+    // Grenzen prüfen und stoppen, wenn die Daten ausgehen
     if (this.xMin < this.allTimes[0]) {
       this.xMin = this.allTimes[0];
       this.xMax = this.xMin + this.visibleRange;
@@ -145,20 +148,15 @@ export class HourlyForecastComponent implements OnInit, OnDestroy {
       this.xMin = this.xMax - this.visibleRange;
     }
 
-    // Chart-Optionen aktualisieren
+    // Chart sofort aktualisieren
     if (this.chart) {
-      this.chart.updateOptions(
-        {
-          xaxis: {
-            min: this.xMin,
-            max: this.xMax,
-          },
+      this.chart.updateOptions({
+        xaxis: {
+          min: this.xMin,
+          max: this.xMax,
         },
-        false, // Redraw
-        true   // Animate
-      );
+      });
     }
-    
   }
 
   // Maus betritt das Diagramm
