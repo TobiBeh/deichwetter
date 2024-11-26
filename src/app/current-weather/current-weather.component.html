@@ -1,5 +1,30 @@
 <div class="h-full p-4 bg-blue-300">
-    <h2 class="text-xl font-bold">Current Weather</h2>
-    <p>Details about the current weather will go here.</p>
+    <h2 class="text-xl font-bold mb-4">Current Weather</h2>
+  
+    <!-- Suchzeile -->
+    <div class="relative mb-4 w-full max-w-md">
+      <input
+        type="text"
+        [formControl]="searchControl"
+        placeholder="Enter city or location"
+        class="w-full p-2 border border-gray-400 rounded"
+      />
+      
+      <!-- Dropdown-Vorschläge -->
+      <ul
+      *ngIf="suggestions.length > 0"
+      class="absolute left-0 w-full bg-white border border-gray-300 rounded shadow-lg z-10 max-h-60 overflow-auto"
+    >
+      <li
+        *ngFor="let suggestion of suggestions"
+        (click)="onSelectSuggestion(suggestion)"
+        class="p-2 hover:bg-gray-200 cursor-pointer"
+      >
+        {{ suggestion.display_name }}
+      </li>
+    </ul>
+    
+
+    </div>
   </div>
   
