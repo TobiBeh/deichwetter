@@ -20,7 +20,7 @@ export class HourlyForecastComponent implements OnInit, OnDestroy {
   private xMax: number = 0;
   private isMouseOverChart: boolean = false; // Zustand des Mauszeigers
 
-  constructor(private weatherService: WeatherService, private renderer: Renderer2) {}
+  constructor(private weatherService: WeatherService, private renderer: Renderer2) { }
 
   ngOnInit(): void {
     this.weatherService.getLocation().subscribe((location) => {
@@ -35,25 +35,39 @@ export class HourlyForecastComponent implements OnInit, OnDestroy {
       this.allTimes = data.hourly.time.map((time: string) => new Date(time).getTime());
       this.temperatures = data.hourly.temperature_2m;
 
-      const now = this.allTimes[0]; // Beginne bei den frühesten Daten
-      this.xMin = now;
-      this.xMax = now + this.visibleRange;
+      const now = new Date().getTime(); // Aktueller Zeitstempel in lokaler Zeit
+      const firstDataPoint = this.allTimes[0]; // Erster Zeitstempel aus den Daten
+
+      // Setze xMin auf den aktuellen Zeitpunkt oder den ersten Datenpunkt, je nachdem, welcher später ist
+      this.xMin = Math.max(now, firstDataPoint);
+      this.xMax = this.xMin + this.visibleRange;
 
       // Annotationen für jeden zweiten Tag erstellen
       const annotations = [];
-      for (let i = 0; i < this.allTimes.length; i++) {
-        const dayStart = new Date(this.allTimes[i]).setHours(0, 0, 0, 0); // Tagesanfang
-        const dayEnd = dayStart + 24 * 60 * 60 * 1000; // Tagesende
+      for (let i = 0; i < this.allTimes.length; i += 24) {
+        const utcDate = new Date(this.allTimes[i]);
+
+        // Berechne 0 Uhr UTC für den Startzeitpunkt
+        const dayStartUTC = Date.UTC(
+          utcDate.getUTCFullYear(),
+          utcDate.getUTCMonth(),
+          utcDate.getUTCDate()
+        );
+
+        // Berechne 0 Uhr UTC für den nächsten Tag (Endzeitpunkt)
+        const dayEndUTC = dayStartUTC + 24 * 60 * 60 * 1000; // 24 Stunden später
 
         // Nur jeden zweiten Tag markieren
         if ((i / 24) % 2 === 1) {
           annotations.push({
-            x: dayStart,
-            x2: dayEnd,
-            fillColor: 'rgba(0, 0, 0, 0.25)', // Leicht graue Hintergrundfarbe
+            x: dayStartUTC,
+            x2: dayEndUTC,
+            fillColor: 'rgba(0, 0, 0, 0.15)', // Leicht graue Hintergrundfarbe
           });
         }
       }
+
+
 
       const options = {
         chart: {
@@ -96,6 +110,35 @@ export class HourlyForecastComponent implements OnInit, OnDestroy {
         },
         stroke: {
           curve: 'smooth',
+          width: 3, // Linienbreite
+          colors: ['#40E0D0'], // Primärfarbe (Türkis für Standardlinie)
+        },
+        fill: {
+          type: 'gradient',
+          gradient: {
+            shade: 'dark',
+            type: 'vertical', // Farbverlauf vertikal
+            gradientToColors: ['#FF0000'], // Übergang von Türkis zu Rot
+            stops: [0, 50, 100], // Verlauf basierend auf 0%, 50%, 100%
+            shadeIntensity: 1, // Stärke des Farbverlaufs
+            colorStops: [
+              {
+                offset: 0,
+                color: '#F95CCA', // Rosa für Werte > 40
+                opacity: 1
+              },
+              {
+                offset: 50,
+                color: '#1E62BC', // Blau für Werte um 5
+                opacity: 1
+              },
+              {
+                offset: 100,
+                color: '#FFFFFF', // Weiß für Werte < -5
+                opacity: 1
+              }
+            ]
+          },
         },
         tooltip: {
           x: {
@@ -135,12 +178,14 @@ export class HourlyForecastComponent implements OnInit, OnDestroy {
   }
 
   updateChartRange(delta: number): void {
+    const now = new Date().getTime(); // Aktueller lokaler Zeitpunkt
+
     this.xMin += delta;
     this.xMax += delta;
 
-    // Grenzen prüfen und stoppen, wenn die Daten ausgehen
-    if (this.xMin < this.allTimes[0]) {
-      this.xMin = this.allTimes[0];
+    // Grenzen prüfen und stoppen, wenn die Daten ausgehen oder der aktuelle Zeitpunkt unterschritten wird
+    if (this.xMin < Math.max(this.allTimes[0], now)) {
+      this.xMin = Math.max(this.allTimes[0], now);
       this.xMax = this.xMin + this.visibleRange;
     }
     if (this.xMax > this.allTimes[this.allTimes.length - 1]) {
@@ -158,6 +203,7 @@ export class HourlyForecastComponent implements OnInit, OnDestroy {
       });
     }
   }
+
 
   // Maus betritt das Diagramm
   onMouseEnter(): void {
