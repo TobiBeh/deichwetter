@@ -83,6 +83,7 @@ export class HourlyForecastComponent implements OnInit, OnDestroy {
             tools: {
               pan: false, // Kein manuelles Panning
               zoom: false, // Kein Zoom
+              download: false, // Kein Download
             },
           },
         },
@@ -110,7 +111,7 @@ export class HourlyForecastComponent implements OnInit, OnDestroy {
         },
         stroke: {
           curve: 'smooth',
-          width: 3, // Linienbreite
+          width: 2, // Linienbreite
           colors: ['#40E0D0'], // Primärfarbe (Türkis für Standardlinie)
         },
         fill: {
@@ -119,11 +120,11 @@ export class HourlyForecastComponent implements OnInit, OnDestroy {
             shade: 'dark',
             type: 'vertical', // Farbverlauf vertikal
             gradientToColors: ['#FF0000'], // Übergang von Türkis zu Rot
-            stops: [0, 50, 100], // Verlauf basierend auf 0%, 50%, 100%
+            stops: [-100, 50, 100], // Verlauf basierend auf 0%, 50%, 100%
             shadeIntensity: 1, // Stärke des Farbverlaufs
             colorStops: [
               {
-                offset: 0,
+                offset: -100,
                 color: '#F95CCA', // Rosa für Werte > 40
                 opacity: 1
               },
@@ -133,7 +134,7 @@ export class HourlyForecastComponent implements OnInit, OnDestroy {
                 opacity: 1
               },
               {
-                offset: 100,
+                offset: 200,
                 color: '#FFFFFF', // Weiß für Werte < -5
                 opacity: 1
               }
