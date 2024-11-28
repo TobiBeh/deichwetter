@@ -30,6 +30,7 @@ export class CurrentWeatherComponent implements OnInit {
 
   ngOnInit(): void {
     this.loading = true; // Start loading indicator
+
     this.nominatimService.getCurrentPosition().then(
       (position) => {
         const { latitude, longitude } = position.coords;

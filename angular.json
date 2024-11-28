@@ -30,7 +30,8 @@
               "src/styles.css",
               "node_modules/weather-icons/css/weather-icons.css"
             ],
-            "scripts": []
+            "scripts": [],
+            "allowedCommonJsDependencies": ["apexcharts"]
           },
           "configurations": {
             "production": {
