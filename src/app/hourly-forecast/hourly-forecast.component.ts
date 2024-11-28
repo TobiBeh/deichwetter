@@ -38,6 +38,7 @@ export class HourlyForecastComponent implements OnInit, OnDestroy {
     this.weatherService.getHourlyWeather(lat, lon).subscribe((data: any) => {
       this.allTimes = data.hourly.time.map((time: string) => new Date(time).getTime());
       this.temperatures = data.hourly.temperature_2m;
+      const precipitationProbabilities = data.hourly.precipitation_probability;
 
       const now = new Date().getTime(); // Aktueller Zeitstempel in lokaler Zeit
       const firstDataPoint = this.allTimes[0]; // Erster Zeitstempel aus den Daten
@@ -53,7 +54,7 @@ export class HourlyForecastComponent implements OnInit, OnDestroy {
 
       const chartElement = document.querySelector('#chart') as HTMLElement;
       if (chartElement) {
-        this.chart = this.chartService.createChart(chartElement, this.allTimes, this.temperatures, this.xMin, this.xMax);
+        this.chart = this.chartService.createChart(chartElement, this.allTimes, this.temperatures, precipitationProbabilities, this.xMin, this.xMax);
         this.chart.render(); // Ensure the chart is rendered
       }
     });

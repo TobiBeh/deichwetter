@@ -36,7 +36,7 @@ export class WeatherService {
     const params = {
       latitude: lat,
       longitude: lon,
-      hourly: 'temperature_2m',
+      hourly: 'temperature_2m,precipitation_probability',
     };
     return this.http.get<any>(this.baseUrl, { params });
   }
