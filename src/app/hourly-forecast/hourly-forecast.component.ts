@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy, HostListener, Renderer2 } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import ApexCharts from 'apexcharts';
 import { WeatherService } from '../services/weather.service';
+import { ChartService } from '../services/chart.service';
+import ApexCharts from 'apexcharts';
 
 @Component({
   selector: 'app-hourly-forecast',
@@ -20,7 +21,10 @@ export class HourlyForecastComponent implements OnInit, OnDestroy {
   private xMax: number = 0;
   private isMouseOverChart: boolean = false; // Zustand des Mauszeigers
 
-  constructor(private weatherService: WeatherService, private renderer: Renderer2) { }
+  constructor(
+    private weatherService: WeatherService,
+    private chartService: ChartService
+  ) { }
 
   ngOnInit(): void {
     this.weatherService.getLocation().subscribe((location) => {
@@ -42,124 +46,15 @@ export class HourlyForecastComponent implements OnInit, OnDestroy {
       this.xMin = Math.max(now, firstDataPoint);
       this.xMax = this.xMin + this.visibleRange;
 
-      // Annotationen für jeden zweiten Tag erstellen
-      const annotations = [];
-      for (let i = 0; i < this.allTimes.length; i += 24) {
-        const utcDate = new Date(this.allTimes[i]);
-
-        // Berechne 0 Uhr UTC für den Startzeitpunkt
-        const dayStartUTC = Date.UTC(
-          utcDate.getUTCFullYear(),
-          utcDate.getUTCMonth(),
-          utcDate.getUTCDate()
-        );
-
-        // Berechne 0 Uhr UTC für den nächsten Tag (Endzeitpunkt)
-        const dayEndUTC = dayStartUTC + 24 * 60 * 60 * 1000; // 24 Stunden später
-
-        // Nur jeden zweiten Tag markieren
-        if ((i / 24) % 2 === 1) {
-          annotations.push({
-            x: dayStartUTC,
-            x2: dayEndUTC,
-            fillColor: 'rgba(0, 0, 0, 0.15)', // Leicht graue Hintergrundfarbe
-          });
-        }
-      }
-
-
-
-      const options = {
-        chart: {
-          type: 'line',
-          height: 350,
-          animations: {
-            enabled: false, // Deaktiviert für direktes Feedback
-          },
-          zoom: {
-            enabled: false, // Zoom deaktivieren
-          },
-          toolbar: {
-            tools: {
-              pan: false, // Kein manuelles Panning
-              zoom: false, // Kein Zoom
-              download: false, // Kein Download
-            },
-          },
-        },
-        series: [
-          {
-            name: 'Temperature (°C)',
-            data: this.allTimes.map((time, index) => [time, this.temperatures[index]]),
-          },
-        ],
-        xaxis: {
-          type: 'datetime',
-          min: this.xMin,
-          max: this.xMax,
-          labels: {
-            format: 'HH:mm',
-          },
-          title: {
-            text: 'Time',
-          },
-        },
-        yaxis: {
-          title: {
-            text: 'Temperature (°C)',
-          },
-        },
-        stroke: {
-          curve: 'smooth',
-          width: 2, // Linienbreite
-          colors: ['#40E0D0'], // Primärfarbe (Türkis für Standardlinie)
-        },
-        fill: {
-          type: 'gradient',
-          gradient: {
-            shade: 'dark',
-            type: 'vertical', // Farbverlauf vertikal
-            gradientToColors: ['#FF0000'], // Übergang von Türkis zu Rot
-            stops: [-100, 50, 100], // Verlauf basierend auf 0%, 50%, 100%
-            shadeIntensity: 1, // Stärke des Farbverlaufs
-            colorStops: [
-              {
-                offset: -100,
-                color: '#F95CCA', // Rosa für Werte > 40
-                opacity: 1
-              },
-              {
-                offset: 50,
-                color: '#1E62BC', // Blau für Werte um 5
-                opacity: 1
-              },
-              {
-                offset: 200,
-                color: '#FFFFFF', // Weiß für Werte < -5
-                opacity: 1
-              }
-            ]
-          },
-        },
-        tooltip: {
-          x: {
-            format: 'dd MMM HH:mm',
-          },
-        },
-        annotations: {
-          xaxis: annotations, // Annotationen für jeden zweiten Tag
-        },
-      };
-
       // Existierenden Chart löschen und neuen erstellen
       if (this.chart) {
         this.chart.destroy();
       }
 
-      const chartElement = document.querySelector('#chart');
+      const chartElement = document.querySelector('#chart') as HTMLElement;
       if (chartElement) {
-        this.chart = new ApexCharts(chartElement, options);
-        this.chart.render();
+        this.chart = this.chartService.createChart(chartElement, this.allTimes, this.temperatures, this.xMin, this.xMax);
+        this.chart.render(); // Ensure the chart is rendered
       }
     });
   }
@@ -204,7 +99,6 @@ export class HourlyForecastComponent implements OnInit, OnDestroy {
       });
     }
   }
-
 
   // Maus betritt das Diagramm
   onMouseEnter(): void {

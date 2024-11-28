@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { CurrentWeatherComponent } from './current-weather.component';
+import { HttpClientModule } from '@angular/common/http';
 
 describe('CurrentWeatherComponent', () => {
   let component: CurrentWeatherComponent;
@@ -8,9 +8,8 @@ describe('CurrentWeatherComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CurrentWeatherComponent]
-    })
-    .compileComponents();
+      imports: [CurrentWeatherComponent, HttpClientModule]
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CurrentWeatherComponent);
     component = fixture.componentInstance;
