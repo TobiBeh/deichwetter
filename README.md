@@ -25,3 +25,21 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## Installationsanleitung
+
+### Voraussetzungen
+
+Stellen Sie sicher, dass die folgenden Softwarekomponenten auf Ihrem System installiert sind:
+
+- [Node.js](https://nodejs.org/) (Version 14.x oder höher)
+- [npm](https://www.npmjs.com/) (wird mit Node.js installiert)
+- [Angular CLI](https://angular.io/cli) (Version 18.2.10 oder höher)
+
+### Schritt 1: Repository klonen
+
+Klonen Sie das Repository auf Ihr lokales System:
+
+```sh
+git clone https://github.com/IhrBenutzername/deichwetter.git
+cd deichwetter
