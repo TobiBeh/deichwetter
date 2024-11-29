@@ -52,8 +52,16 @@
 
     <!-- Temperatur -->
     <div class="mt-4">
-      <p class="text-5xl font-bold">
-        {{ weatherData.temperature }} °C
+      <p class="text-5xl">
+        {{ weatherData.temperature }}°
+      </p>
+    </div>
+
+    <!-- Höchst- und Tiefsttemperatur -->
+    <div class="mt-4 text-lg">
+      <p>
+        <i class="material-icons" style="vertical-align: middle;">north</i>{{weatherData.temperature_max }}°
+        <i class="material-icons" style="vertical-align: middle;">south</i>{{weatherData.temperature_min }}°
       </p>
     </div>
 

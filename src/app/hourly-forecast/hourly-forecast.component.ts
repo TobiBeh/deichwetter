@@ -55,7 +55,6 @@ export class HourlyForecastComponent implements OnInit, OnDestroy {
       const chartElement = document.querySelector('#chart') as HTMLElement;
       if (chartElement) {
         this.chart = this.chartService.createChart(chartElement, this.allTimes, this.temperatures, precipitationProbabilities, this.xMin, this.xMax);
-        this.chart.render(); // Ensure the chart is rendered
       }
     });
   }

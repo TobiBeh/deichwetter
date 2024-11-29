@@ -51,7 +51,11 @@ export class CurrentWeatherComponent implements OnInit {
               // Standortname aus strukturierter Adresse extrahieren
               const address = location.address;
               this.selectedLocation = this.nominatimService.getFormattedLocation(address);
-              this.weatherData = weather.current_weather;
+              this.weatherData = {
+                ...weather.current_weather,
+                temperature_max: weather.daily.temperature_2m_max[0],
+                temperature_min: weather.daily.temperature_2m_min[0]
+              };
               this.weatherService.setLocation(latitude.toString(), longitude.toString());
             }
             this.loading = false; // Stop loading indicator
@@ -86,7 +90,11 @@ export class CurrentWeatherComponent implements OnInit {
     this.weatherService
       .getCurrentWeather(suggestion.lat, suggestion.lon)
       .subscribe((weather) => {
-        this.weatherData = weather.current_weather;
+        this.weatherData = {
+          ...weather.current_weather,
+          temperature_max: weather.daily.temperature_2m_max[0],
+          temperature_min: weather.daily.temperature_2m_min[0]
+        };
         this.searchControl.setValue('', { emitEvent: false }); // Suchzeile leeren
       });
     this.weatherService.setLocation(suggestion.lat, suggestion.lon);

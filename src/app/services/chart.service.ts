@@ -59,6 +59,7 @@ export class ChartService {
           name: 'Precipitation Probability (%)',
           type: 'area',
           data: allTimes.map((time, index) => [time, precipitationProbabilities[index]]),
+          yAxisIndex: 1, // Use the second y-axis
         },
       ],
       xaxis: {
@@ -77,30 +78,45 @@ export class ChartService {
           title: {
             text: 'Temperature (°C)',
           },
+          opposite: false,
         },
         {
+          max: 100, // Set maximum to 100
+          min: 0, // Set minimum to 0
           opposite: true,
           title: {
             text: 'Precipitation Probability (%)',
           },
+          tickAmount: 5,
+          labels: {
+            formatter: (value: number) => `${value}%`,
+          },
         },
       ],
+      grid: {
+        padding: {
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0
+        },
+      },
       stroke: {
         curve: 'smooth',
-        width: [2, 1], // Unterschiedliche Breite: 2 für Temperatur, 1 für Niederschlag
+        width: 2,
         colors: ['#40E0D0', '#76a5af'], // Türkis für Temperatur, Blassblau für Niederschlag
       },
       fill: {
-        type: ['gradient', 'gradient'],
+        type: ['gradient','solid'],
         gradient: {
           shade: 'dark',
           type: 'vertical', // Farbverlauf vertikal
           gradientToColors: ['#FF0000'], // Übergang von Türkis zu Rot
-          stops: [-100, 50, 100],
+          stops: [0, 50, 100],
           shadeIntensity: 1,
           colorStops: [
             {
-              offset: -100,
+              offset: 0,
               color: '#F95CCA', // Rosa für Werte > 40
               opacity: 1,
             },
@@ -110,13 +126,13 @@ export class ChartService {
               opacity: 1,
             },
             {
-              offset: 200,
+              offset: 100,
               color: '#FFFFFF', // Weiß für Werte < -5
               opacity: 1,
             },
           ],
         },
-        opacity: [1, 0.35], // Opazität: 1 für Temperatur, 0.35 für Niederschlag
+        opacity: 0.35, // Opazität: 0.35 für Niederschlag
       },
       tooltip: {
         x: {
@@ -128,6 +144,8 @@ export class ChartService {
       },
     };
 
-    return new ApexCharts(element, options);
+    const chart = new ApexCharts(element, options);
+    chart.render();
+    return chart;
   }
 }
