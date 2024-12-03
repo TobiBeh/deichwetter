@@ -5,11 +5,11 @@ import { ChartService } from '../services/chart.service';
 import ApexCharts from 'apexcharts';
 
 @Component({
-  selector: 'app-hourly-forecast',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './hourly-forecast.component.html',
-  styleUrls: ['./hourly-forecast.component.css'],
+    selector: 'app-hourly-forecast',
+    standalone: true,
+    imports: [CommonModule],
+    templateUrl: './hourly-forecast.component.html',
+    styleUrls: ['./hourly-forecast.component.css']
 })
 export class HourlyForecastComponent implements OnInit, OnDestroy {
   private chart: ApexCharts | null = null;

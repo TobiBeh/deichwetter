@@ -5,6 +5,7 @@ import { catchError } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { NominatimService } from '../services/nominatim.service';
 import { WeatherService } from '../services/weather.service';
+import { ɵ$localize } from '@angular/localize';
 
 @Component({
   selector: 'app-current-weather',

@@ -3,6 +3,7 @@ import { CurrentWeatherComponent } from './current-weather/current-weather.compo
 import { HeaderComponent } from './header/header.component';
 import { HourlyForecastComponent } from './hourly-forecast/hourly-forecast.component';
 import { provideHttpClient } from '@angular/common/http';
+import { ɵ$localize } from '@angular/localize';
 
 @Component({
   selector: 'app-root',
@@ -12,5 +13,5 @@ import { provideHttpClient } from '@angular/common/http';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'deichwetter';
+  title = ɵ$localize`:@@appTitle:DEICHWETTER`;
 }
