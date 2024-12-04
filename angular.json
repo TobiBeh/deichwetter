@@ -27,12 +27,9 @@
               }
             ],
             "styles": [
-              "src/styles.css",
-              "node_modules/weather-icons/css/weather-icons.css",
-              "node_modules/material-icons/iconfont/material-icons.css"
+              "src/styles.css"
             ],
-            "scripts": [],
-            "allowedCommonJsDependencies": ["apexcharts"]
+            "scripts": []
           },
           "configurations": {
             "production": {
@@ -88,9 +85,7 @@
               }
             ],
             "styles": [
-              "src/styles.css",
-              "node_modules/weather-icons/css/weather-icons.css",
-              "node_modules/material-icons/iconfont/material-icons.css"
+              "src/styles.css"
             ],
             "scripts": []
           }
