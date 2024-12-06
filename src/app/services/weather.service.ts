@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root',
@@ -9,7 +10,7 @@ export class WeatherService {
   private baseUrl = 'https://api.open-meteo.com/v1/forecast';
   private locationSubject = new BehaviorSubject<{ latitude: string; longitude: string } | null>(null);
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private translate: TranslateService) {}
 
   // Aktuellen Ort speichern
   setLocation(latitude: string, longitude: string): void {
@@ -46,13 +47,36 @@ export class WeatherService {
   // Wetterbeschreibung
   getWeatherDescription(weatherCode: number): string {
     const weatherDescriptions: { [key: number]: string } = {
-      0: 'Clear Sky',
-      1: 'Partly Cloudy',
-      2: 'Cloudy',
-      3: 'Rain',
-      4: 'Snow',
+      0: 'clearSky',
+      1: 'mainlyClear',
+      2: 'partlyCloudy',
+      3: 'overcast',
+      45: 'fog',
+      48: 'depositingRimeFog',
+      51: 'lightDrizzle',
+      53: 'moderateDrizzle',
+      55: 'denseDrizzle',
+      56: 'lightFreezingDrizzle',
+      57: 'denseFreezingDrizzle',
+      61: 'slightRain',
+      63: 'moderateRain',
+      65: 'heavyRain',
+      66: 'lightFreezingRain',
+      67: 'heavyFreezingRain',
+      71: 'slightSnowfall',
+      73: 'moderateSnowfall',
+      75: 'heavySnowfall',
+      77: 'snowGrains',
+      80: 'slightRainShowers',
+      81: 'moderateRainShowers',
+      82: 'violentRainShowers',
+      85: 'slightSnowShowers',
+      86: 'heavySnowShowers',
+      95: 'thunderstorm',
+      96: 'thunderstormWithSlightHail',
+      99: 'thunderstormWithHeavyHail',
     };
-    return weatherDescriptions[weatherCode] || 'Unknown Condition';
+    return this.translate.instant(weatherDescriptions[weatherCode] || 'unknownCondition');
   }
 
   // Wettericon

@@ -5,12 +5,12 @@ import { catchError } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { NominatimService } from '../services/nominatim.service';
 import { WeatherService } from '../services/weather.service';
-import { ɵ$localize } from '@angular/localize';
+import { TranslateModule, TranslateService} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-current-weather',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [TranslateModule, ReactiveFormsModule, CommonModule],
   templateUrl: './current-weather.component.html',
   styleUrls: ['./current-weather.component.css'],
 })
@@ -24,13 +24,19 @@ export class CurrentWeatherComponent implements OnInit {
 
   constructor(
     private nominatimService: NominatimService,
-    private weatherService: WeatherService
+    private weatherService: WeatherService,
+    private translate: TranslateService
   ) {
     this.initializeSearch();
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.loading = true; // Start loading indicator
+
+    // Sicherstellen, dass die Sprachdaten vollständig geladen sind
+    await this.translate.use(this.translate.currentLang).toPromise();
+    console.log('Aktuelle Sprache:', this.translate.currentLang);
+    console.log('Übersetzung für searchPlaceholder:', this.translate.instant('searchPlaceholder'));
 
     this.nominatimService.getCurrentPosition().then(
       (position) => {
