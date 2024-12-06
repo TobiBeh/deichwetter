@@ -90,8 +90,6 @@ export class HourlyForecastComponent implements OnInit, OnDestroy, AfterViewInit
 
       // Kurz warten, damit die DOM-Elemente für die Charts vorhanden sind
       setTimeout(() => {
-        const annotations = this.chartService.createAnnotationsForDays(this.allTimes);
-        
         const containerHeight = this.chartContainerWrapper.nativeElement.offsetHeight;
         const chartCount = this.chartConfigs.length;
         const heightPerChart = Math.floor(containerHeight / chartCount);
@@ -104,7 +102,6 @@ export class HourlyForecastComponent implements OnInit, OnDestroy, AfterViewInit
             chartConfig,
             this.xMin,
             this.xMax,
-            annotations,
             heightPerChart // Übergabe der berechneten Höhe
           );
           this.charts.push(chart);

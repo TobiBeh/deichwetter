@@ -1,22 +1,23 @@
-<div class="h-full p-4 bg-blue-300">
+<div class="h-full p-4 bg-white dark:bg-gray-900">
   <!-- Suchzeile -->
   <div class="relative mb-4 w-full max-w-md mx-auto">
     <input
       type="text"
       [formControl]="searchControl"
       placeholder="{{ 'searchPlaceholder' | translate }}"
-      class="w-full p-2 border border-gray-400 rounded"
+      class="w-full p-2 border border-gray-400 rounded dark:bg-gray-800 dark:border-gray-600 dark:text-white"
       (keydown)="onKeyDown($event)"
     />
     <ul
       *ngIf="suggestions && suggestions.length > 0"
-      class="absolute left-0 w-full bg-white border border-gray-300 rounded shadow-lg z-10 max-h-60 overflow-auto"
+      class="absolute left-0 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded shadow-lg z-10 max-h-60 overflow-auto"
     >
       <li
         *ngFor="let suggestion of suggestions; let i = index"
         [class.bg-gray-200]="i === highlightedIndex"
+        [class.dark:bg-gray-700]="i === highlightedIndex"
         (click)="onSelectSuggestion(suggestion)"
-        class="p-2 hover:bg-gray-200 cursor-pointer"
+        class="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer dark:text-gray-100"
       >
         {{ suggestion.display_name }}
       </li>
@@ -24,19 +25,19 @@
   </div>
 
   <!-- Loading Indicator -->
-  <div *ngIf="loading" class="text-center">
+  <div *ngIf="loading" class="text-center dark:text-white">
     <p>Loading...</p>
   </div>
 
   <!-- Ortsname -->
-  <div *ngIf="selectedLocation" class="mt-4 text-center">
+  <div *ngIf="selectedLocation" class="mt-4 text-center text-black dark:text-white">
     <h3 class="text-2xl font-bold">{{ selectedLocation }}</h3>
   </div>
 
   <!-- Wetterdaten -->
   <div
     *ngIf="weatherData"
-    class="mt-4 p-6 bg-white rounded shadow-lg max-w-md mx-auto text-center"
+    class="mt-4 bg-white dark:bg-gray-900 rounded max-w-md mx-auto text-center text-black dark:text-gray-100"
   >
     <!-- Wettericon und Beschreibung -->
     <div class="mt-4">
@@ -45,20 +46,20 @@
         [class]="getWeatherIcon(weatherData.weathercode)"
         class="text-6xl"
       ></i>
-      <p class="mt-2 text-lg text-gray-600 opacity-75">
+      <p class="mt-2 text-lg text-gray-600 dark:text-gray-300 opacity-75">
         {{ getWeatherDescription(weatherData.weathercode) | translate }}
       </p>
     </div>
 
     <!-- Temperatur -->
     <div class="mt-4">
-      <p class="text-5xl">
+      <p class="text-5xl dark:text-white">
         {{ weatherData.temperature }}°
       </p>
     </div>
 
     <!-- Höchst- und Tiefsttemperatur -->
-    <div class="mt-4 text-lg">
+    <div class="mt-4 text-lg dark:text-gray-300">
       <p>
         <i class="material-icons" style="vertical-align: middle;">north</i>{{weatherData.temperature_max }}°
         <i class="material-icons" style="vertical-align: middle;">south</i>{{weatherData.temperature_min }}°
@@ -66,7 +67,7 @@
     </div>
 
     <!-- Windgeschwindigkeit und Richtung -->
-    <div class="mt-2 text-sm text-gray-700">
+    <div class="mt-2 text-sm text-gray-700 dark:text-gray-300">
       <p>
         <strong>Wind:</strong> {{ weatherData.windspeed }} km/h
         <span *ngIf="getWindDirection(weatherData.winddirection)">

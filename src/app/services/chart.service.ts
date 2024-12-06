@@ -13,11 +13,29 @@ export interface ChartConfig {
   yaxis?: ApexOptions['yaxis'];
 }
 
+interface ChartInstance {
+  chart: ApexCharts;
+  allTimes: number[];
+  chartConfig: ChartConfig;
+  xMin: number;
+  xMax: number;
+  chartHeight: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class ChartService {
-  constructor(private translate: TranslateService) {}
+  private charts: ChartInstance[] = [];
+
+  constructor(private translate: TranslateService) {
+    // Listener für Änderungen im prefers-color-scheme
+    const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    darkModeMediaQuery.addEventListener('change', (e) => {
+      const isDarkMode = e.matches;
+      this.updateCharts(isDarkMode);
+    });
+  }
 
   createChart(
     element: HTMLElement,
@@ -25,9 +43,19 @@ export class ChartService {
     chartConfig: ChartConfig,
     xMin: number,
     xMax: number,
-    annotations: any[] = [],
     chartHeight: number
   ): ApexCharts {
+    // CSS-Variablen auslesen
+    const rootStyle = getComputedStyle(document.documentElement);
+    const chartBg = rootStyle.getPropertyValue('--chart-bg').trim();
+    const chartTextColor = rootStyle.getPropertyValue('--chart-text-color').trim();
+
+    // Prüfen, ob wir im Dark Mode sind anhand des chartBg
+    const isDarkMode = chartBg !== '#ffffff'; // Annahme: nur weiß ist Hellmodus
+
+    // Generiere Annotations basierend auf dem aktuellen Modus
+    const dynamicAnnotations = this.createAnnotationsForDays(allTimes, isDarkMode);
+
     const seriesName = this.translate.instant(chartConfig.seriesNameKey);
     const chartTitleText = this.translate.instant(chartConfig.yaxisTitleKey);
     const xAxisTitle = this.translate.instant('chart.time');
@@ -44,32 +72,42 @@ export class ChartService {
           },
         },
         animations: { enabled: false },
+        background: chartBg,
       },
       title: {
         text: chartTitleText,
-        align: 'left',    
-        margin: 0,       
+        align: 'left',
+        margin: 0,
         offsetX: 0,
-        offsetY: 20,       
+        offsetY: 20,
         floating: false,
         style: {
           fontSize: '14px',
           fontWeight: 'bold',
           fontFamily: 'Nunito, sans-serif',
-          color: '#363737' // dunkles Grau
-        }
+          color: chartTextColor,
+        },
       },
       xaxis: {
         type: 'datetime',
         min: xMin,
         max: xMax,
-        labels: { format: 'HH:mm' },
-        title: { text: xAxisTitle },
+        labels: {
+          format: 'HH:mm',
+          style: {
+            colors: chartTextColor,
+          },
+        },
+        title: {
+          text: xAxisTitle,
+          style: { color: chartTextColor },
+        },
       },
       tooltip: {
         x: {
           format: 'dd MMM HH:mm',
         },
+        theme: isDarkMode ? 'dark' : 'light', // Tooltip an Dark-/Light-Mode anpassen
       },
       stroke: {
         curve: 'smooth',
@@ -77,17 +115,22 @@ export class ChartService {
       },
       grid: {
         padding: { top: 0, right: 0, bottom: 0, left: 0 },
+        // Optional: borderColor: rootStyle.getPropertyValue('--chart-grid-color').trim(),
       },
       annotations: {
-        xaxis: annotations,
+        xaxis: dynamicAnnotations,
       },
       yaxis: {
         show: true,
-        // Kein title hier, da wir jetzt den Titel oben als Chart-Titel nutzen
+        labels: {
+          style: {
+            colors: chartTextColor,
+          },
+        },
       },
       dataLabels: {
-        enabled: false
-      }
+        enabled: false,
+      },
     };
 
     let fillOptions: ApexOptions['fill'] = { type: 'solid', opacity: 0.35 };
@@ -106,7 +149,6 @@ export class ChartService {
       const zeroStop = toPercent(0);
       const hotStop = toPercent(35);
 
-      // Oben weiß (kalt), in der Mitte blau, unten rot (heiß)
       const colorStops = [
         {
           offset: coldStop,
@@ -136,6 +178,37 @@ export class ChartService {
       };
     }
 
+    // Y-Achse mergen und Farbe erzwingen:
+    let mergedYaxis: ApexOptions['yaxis'] = chartConfig.yaxis
+      ? { ...commonOptions.yaxis, ...chartConfig.yaxis }
+      : commonOptions.yaxis;
+
+    // Sicherstellen, dass Label-Farbe gesetzt ist
+    if (!mergedYaxis) {
+      mergedYaxis = {};
+    }
+
+    if (Array.isArray(mergedYaxis)) {
+      mergedYaxis = mergedYaxis.map(axis => ({
+        ...axis,
+        labels: {
+          ...axis.labels,
+          style: {
+            ...axis.labels?.style,
+            colors: chartTextColor,
+          },
+        },
+      }));
+    } else {
+      if (!mergedYaxis.labels) {
+        mergedYaxis.labels = {};
+      }
+      if (!mergedYaxis.labels.style) {
+        mergedYaxis.labels.style = {};
+      }
+      mergedYaxis.labels.style.colors = chartTextColor;
+    }
+
     const options: ApexOptions = {
       ...commonOptions,
       chart: {
@@ -149,35 +222,108 @@ export class ChartService {
           name: seriesName,
           type: chartConfig.type,
           data: chartConfig.data,
-        }
+        },
       ],
       colors: colors,
       fill: fillOptions,
-      yaxis: chartConfig.yaxis 
-        ? { ...commonOptions.yaxis, ...chartConfig.yaxis }
-        : commonOptions.yaxis
+      yaxis: mergedYaxis,
+      annotations: {
+        xaxis: dynamicAnnotations,
+      },
     };
 
     const chart = new ApexCharts(element, options);
     chart.render();
+
+    // Speichere die Chart-Instanz mit den notwendigen Konfigurationsdaten
+    this.charts.push({
+      chart,
+      allTimes,
+      chartConfig,
+      xMin,
+      xMax,
+      chartHeight,
+    });
+
     return chart;
   }
 
-  createAnnotationsForDays(allTimes: number[]): any[] {
+  updateCharts(isDarkMode: boolean) {
+    const rootStyle = getComputedStyle(document.documentElement);
+    const chartBg = rootStyle.getPropertyValue('--chart-bg').trim();
+    const chartTextColor = rootStyle.getPropertyValue('--chart-text-color').trim();
+
+    this.charts.forEach(chartInstance => {
+      const { chart, allTimes, chartConfig, xMin, xMax, chartHeight } = chartInstance;
+
+      // Generiere neue Annotations basierend auf dem aktuellen Modus
+      const newAnnotations = this.createAnnotationsForDays(allTimes, isDarkMode);
+
+      // Aktualisiere die Chart-Optionen
+      chart.updateOptions({
+        chart: {
+          background: chartBg,
+        },
+        title: {
+          style: {
+            color: chartTextColor,
+          },
+        },
+        xaxis: {
+          labels: {
+            style: {
+              colors: chartTextColor,
+            },
+          },
+          title: {
+            style: { color: chartTextColor },
+          },
+        },
+        yaxis: {
+          labels: {
+            style: {
+              colors: chartTextColor,
+            },
+          },
+        },
+        tooltip: {
+          theme: isDarkMode ? 'dark' : 'light',
+        },
+        annotations: {
+          xaxis: newAnnotations,
+        },
+      });
+    });
+  }
+
+  createAnnotationsForDays(allTimes: number[], isDarkMode: boolean): any[] {
     const annotations = [];
+    const fillColor = isDarkMode ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)';
+
     for (let i = 0; i < allTimes.length; i += 24) {
       const utcDate = new Date(allTimes[i]);
-      const dayStartUTC = Date.UTC(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), utcDate.getUTCDate());
+      const dayStartUTC = Date.UTC(
+        utcDate.getUTCFullYear(),
+        utcDate.getUTCMonth(),
+        utcDate.getUTCDate()
+      );
       const dayEndUTC = dayStartUTC + 24 * 60 * 60 * 1000;
 
       if ((i / 24) % 2 === 1) {
         annotations.push({
           x: dayStartUTC,
           x2: dayEndUTC,
-          fillColor: 'rgba(0, 0, 0, 0.15)',
+          fillColor: fillColor,
         });
       }
     }
     return annotations;
+  }
+
+  destroyCharts(): void {
+    for (const chartInstance of this.charts) {
+      chartInstance.chart.destroy();
+    }
+    this.charts = [];
   }
 }

@@ -1,18 +1,18 @@
-<div class="flex h-screen">
+<div class="flex h-screen bg-white dark:bg-gray-900">
   <!-- Left Panel: Current Weather -->
-  <div class="w-1/5 bg-blue-300">
+  <div class="w-1/5 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-900">
     <app-current-weather></app-current-weather>
   </div>
 
   <!-- Right Panel -->
-  <div class="flex-1 flex flex-col">
+  <div class="flex-1 flex flex-col bg-white dark:bg-gray-900">
     <!-- Top Section: Header -->
-    <div class="h-1/10 bg-gray-300">
+    <div class="py-6 bg-gray-200 dark:bg-gray-900 border-b border-gray-300 dark:border-gray-900">
       <app-header></app-header>
     </div>
 
     <!-- Bottom Section: Hourly Forecast -->
-    <div class="flex-1 bg-green-300">
+    <div class="flex-1 bg-white dark:bg-gray-900">
       <app-hourly-forecast></app-hourly-forecast>
     </div>
   </div>

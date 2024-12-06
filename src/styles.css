@@ -1,7 +1,23 @@
-/* You can add global styles to this file, and also import other style files */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Globale Schriftart-Anwendung */
 body {
-    @apply font-nunito;
+  @apply font-nunito;
+}
+
+/* Globale CSS-Variablen für Charts */
+:root {
+  --chart-bg: #ffffff;
+  --chart-grid-color: #e0e0e0;
+  --chart-text-color: #363737;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --chart-bg: #111827;      /* Dunkelgrauer Hintergrund für Charts */
+    --chart-grid-color: #4b5563;
+    --chart-text-color: #e0e0e0;
+  }
 }

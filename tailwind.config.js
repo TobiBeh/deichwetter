@@ -2,9 +2,10 @@
 module.exports = {
   content: [
     './src/**/*.html',
-    './src/**/*.ts',   // Falls du Angular benutzt, solltest du auch .ts/.html Dateien hinzufügen
+    './src/**/*.ts',
     './src/**/*.component.html'
   ],
+  darkMode: 'media', // Nutzt das System-Theme
   theme: {
     extend: {
       fontFamily: {
