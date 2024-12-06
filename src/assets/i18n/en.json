@@ -29,5 +29,13 @@
     "thunderstorm": "Thunderstorm",
     "thunderstormWithSlightHail": "Thunderstorm with Slight Hail",
     "thunderstormWithHeavyHail": "Thunderstorm with Heavy Hail",
-    "unknownCondition": "Unknown Condition"
+    "unknownCondition": "Unknown Condition",
+    "chart": {
+      "temperature": "Temperature (°C)",
+      "precipitation": "Precipitation Probability (%)",
+      "time": "Time",
+      "temperature_yaxis": "Temperature (°C)",
+      "precipitation_yaxis": "Precipitation Probability (%)"
+    }
   }
+  

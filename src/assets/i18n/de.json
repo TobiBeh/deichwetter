@@ -29,5 +29,13 @@
     "thunderstorm": "Gewitter",
     "thunderstormWithSlightHail": "Gewitter mit leichtem Hagel",
     "thunderstormWithHeavyHail": "Gewitter mit starkem Hagel",
-    "unknownCondition": "Unbekannte Bedingung"
+    "unknownCondition": "Unbekannte Bedingung",
+    "chart": {
+      "temperature": "Temperatur (°C)",
+      "precipitation": "Niederschlagswahrscheinlichkeit (%)",
+      "time": "Zeit",
+      "temperature_yaxis": "Temperatur (°C)",
+      "precipitation_yaxis": "Niederschlagswahrscheinlichkeit (%)"
+    }
   }
+  

@@ -1,24 +1,33 @@
 import { Injectable } from '@angular/core';
 import ApexCharts from 'apexcharts';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ChartService {
-  createChart(element: HTMLElement, allTimes: number[], temperatures: number[], precipitationProbabilities: number[], xMin: number, xMax: number): ApexCharts {
+  constructor(private translate: TranslateService) {}
+
+  createChart(
+    element: HTMLElement,
+    allTimes: number[],
+    temperatures: number[],
+    precipitationProbabilities: number[],
+    xMin: number,
+    xMax: number
+  ): ApexCharts {
+    // Hier ggf. die Übersetzungen laden
+    const temperatureSeriesName = this.translate.instant('chart.temperature');
+    const precipitationSeriesName = this.translate.instant('chart.precipitation');
+    const xAxisTitle = this.translate.instant('chart.time');
+    const temperatureYAxisTitle = this.translate.instant('chart.temperature_yaxis');
+    const precipitationYAxisTitle = this.translate.instant('chart.precipitation_yaxis');
+
     // Annotationen für jeden zweiten Tag erstellen
     const annotations = [];
     for (let i = 0; i < allTimes.length; i += 24) {
       const utcDate = new Date(allTimes[i]);
-
-      // Berechne 0 Uhr UTC für den Startzeitpunkt
-      const dayStartUTC = Date.UTC(
-        utcDate.getUTCFullYear(),
-        utcDate.getUTCMonth(),
-        utcDate.getUTCDate()
-      );
-
-      // Berechne 0 Uhr UTC für den nächsten Tag (Endzeitpunkt)
+      const dayStartUTC = Date.UTC(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), utcDate.getUTCDate());
       const dayEndUTC = dayStartUTC + 24 * 60 * 60 * 1000; // 24 Stunden später
 
       // Nur jeden zweiten Tag markieren
@@ -36,30 +45,30 @@ export class ChartService {
         type: 'line',
         height: 450,
         animations: {
-          enabled: false, // Deaktiviert für direktes Feedback
+          enabled: false,
         },
         zoom: {
-          enabled: false, // Zoom deaktivieren
+          enabled: false,
         },
         toolbar: {
           tools: {
-            pan: false, // Kein manuelles Panning
-            zoom: false, // Kein Zoom
-            download: false, // Kein Download
+            pan: false,
+            zoom: false,
+            download: false,
           },
         },
       },
       series: [
         {
-          name: 'Temperature (°C)',
+          name: temperatureSeriesName, // Übersetzter Name
           type: 'line',
           data: allTimes.map((time, index) => [time, temperatures[index]]),
         },
         {
-          name: 'Precipitation Probability (%)',
+          name: precipitationSeriesName, // Übersetzter Name
           type: 'area',
           data: allTimes.map((time, index) => [time, precipitationProbabilities[index]]),
-          yAxisIndex: 1, // Use the second y-axis
+          yAxisIndex: 1,
         },
       ],
       xaxis: {
@@ -70,22 +79,22 @@ export class ChartService {
           format: 'HH:mm',
         },
         title: {
-          text: 'Time',
+          text: xAxisTitle, // Übersetzter Achsentitel
         },
       },
       yaxis: [
         {
           title: {
-            text: 'Temperature (°C)',
+            text: temperatureYAxisTitle, // Übersetzter Achsentitel
           },
           opposite: false,
         },
         {
-          max: 100, // Set maximum to 100
-          min: 0, // Set minimum to 0
+          max: 100,
+          min: 0,
           opposite: true,
           title: {
-            text: 'Precipitation Probability (%)',
+            text: precipitationYAxisTitle, // Übersetzter Achsentitel
           },
           tickAmount: 5,
           labels: {
@@ -104,35 +113,35 @@ export class ChartService {
       stroke: {
         curve: 'smooth',
         width: 2,
-        colors: ['#40E0D0', '#76a5af'], // Türkis für Temperatur, Blassblau für Niederschlag
+        colors: ['#40E0D0', '#76a5af'],
       },
       fill: {
         type: ['gradient','solid'],
         gradient: {
           shade: 'dark',
-          type: 'vertical', // Farbverlauf vertikal
-          gradientToColors: ['#FF0000'], // Übergang von Türkis zu Rot
+          type: 'vertical',
+          gradientToColors: ['#FF0000'],
           stops: [0, 50, 100],
           shadeIntensity: 1,
           colorStops: [
             {
               offset: 0,
-              color: '#F95CCA', // Rosa für Werte > 40
+              color: '#F95CCA',
               opacity: 1,
             },
             {
               offset: 50,
-              color: '#1E62BC', // Blau für Werte um 5
+              color: '#1E62BC',
               opacity: 1,
             },
             {
               offset: 100,
-              color: '#FFFFFF', // Weiß für Werte < -5
+              color: '#FFFFFF',
               opacity: 1,
             },
           ],
         },
-        opacity: 0.35, // Opazität: 0.35 für Niederschlag
+        opacity: 0.35,
       },
       tooltip: {
         x: {
@@ -140,7 +149,7 @@ export class ChartService {
         },
       },
       annotations: {
-        xaxis: annotations, // Annotationen für jeden zweiten Tag
+        xaxis: annotations,
       },
     };
 
