@@ -78,18 +78,43 @@ export class WeatherService {
     };
     return this.translate.instant(weatherDescriptions[weatherCode] || 'unknownCondition');
   }
-
-  // Wettericon
+  
   getWeatherIcon(weatherCode: number): string {
     const weatherIcons: { [key: number]: string } = {
-      0: 'wi wi-day-sunny',
-      1: 'wi wi-day-cloudy',
-      2: 'wi wi-cloudy',
-      3: 'wi wi-rain',
-      4: 'wi wi-snow',
+      0: 'wi wi-day-sunny', // Klarer Himmel
+      1: 'wi wi-day-sunny-overcast', // Überwiegend klar
+      2: 'wi wi-day-cloudy', // Teilweise bewölkt
+      3: 'wi wi-cloudy', // Bewölkt
+      45: 'wi wi-fog', // Nebel
+      48: 'wi wi-fog', // Raureif-Nebel
+      51: 'wi wi-sprinkle', // Leichter Nieselregen
+      53: 'wi wi-sprinkle', // Mäßiger Nieselregen
+      55: 'wi wi-rain-mix', // Starker Nieselregen
+      56: 'wi wi-rain-mix', // Leichter gefrierender Nieselregen
+      57: 'wi wi-rain-mix', // Starker gefrierender Nieselregen
+      61: 'wi wi-rain', // Leichter Regen
+      63: 'wi wi-rain', // Mäßiger Regen
+      65: 'wi wi-rain-wind', // Starker Regen
+      66: 'wi wi-sleet', // Leichter gefrierender Regen
+      67: 'wi wi-sleet', // Starker gefrierender Regen
+      71: 'wi wi-snow', // Leichter Schneefall
+      73: 'wi wi-snow', // Mäßiger Schneefall
+      75: 'wi wi-snow-wind', // Starker Schneefall
+      77: 'wi wi-snowflake-cold', // Schneekörner
+      80: 'wi wi-showers', // Leichte Regenschauer
+      81: 'wi wi-showers', // Mäßige Regenschauer
+      82: 'wi wi-storm-showers', // Heftige Regenschauer
+      85: 'wi wi-snow', // Leichte Schneeschauer
+      86: 'wi wi-snow-wind', // Starke Schneeschauer
+      95: 'wi wi-thunderstorm', // Gewitter
+      96: 'wi wi-thunderstorm', // Gewitter mit leichtem Hagel
+      99: 'wi wi-thunderstorm', // Gewitter mit schwerem Hagel
     };
+  
+    // Fallback-Icon für unbekannte Bedingungen
     return weatherIcons[weatherCode] || 'wi wi-na';
   }
+  
 
   // Windrichtung
   getWindDirection(degree: number): string {

@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 /* Globale Schriftart-Anwendung */
 body {
   @apply font-nunito;
